@@ -140,6 +140,7 @@ int main(){
 		if(frame)
 			cvShowImage("Camera Feed", frame);
 		if(processedFaceImage)
+			//cvShowImage("Face", faceToPerson.at(iNearest)->getFaceImgs().at(0));
 			cvShowImage("Face", processedFaceImage);
 
 		string *p;
@@ -392,7 +393,7 @@ void loadFaceImgArray(char * filename)
 				if(faceRect.width>0) { //make sure you found a face
 					IplImage* tempImage = &IplImage(*originalImage); //crop just the face as a whole and equalize it
 					tempImage = cropImage(tempImage, faceRect);
-					people.at(personInset).addFace(tempImage);
+					people.at(personInset).addFace(resizeImage(tempImage,FACE_WIDTH, FACE_HEIGHT));
 					//cvReleaseImage(&tempImage);
 				} else {
 					//fprintf(stderr, "Can\'t load image from %s\n", imgFilename);
@@ -414,7 +415,7 @@ void loadFaceImgArray(char * filename)
 				if(faceRect.width>0) { //make sure you found a face
 					IplImage* tempImage = &IplImage(*originalImage); //crop just the face as a whole and equalize it
 					tempImage = cropImage(tempImage, faceRect);
-					people.at(personInset).addFace(tempImage);
+					people.at(personInset).addFace(resizeImage(tempImage,FACE_WIDTH, FACE_HEIGHT));
 					//cvReleaseImage(&tempImage);
 				} else {
 					//fprintf(stderr, "Can\'t load image from %s\n", imgFilename);
@@ -433,10 +434,10 @@ void loadFaceImgArray(char * filename)
 				faceRect = cvRect(-1,-1,-1,-1);
 			if(faceRect.width>0) { //make sure you found a face
 				//people.at(personInset).addFace(equalizeImage(cropImage(originalImage, faceRect)));
-				people.at(personInset).addFace(cropImage(originalImage, faceRect));
+				people.at(personInset).addFace(resizeImage(cropImage(originalImage, faceRect),FACE_WIDTH, FACE_HEIGHT));
 				cvFlip(originalImage, NULL, 1);
 				//people.at(personInset).addFace(equalizeImage(cropImage(originalImage, faceRect)));
-				people.at(personInset).addFace(cropImage(originalImage, faceRect));
+				people.at(personInset).addFace(resizeImage(cropImage(originalImage, faceRect),FACE_WIDTH, FACE_HEIGHT));
 				//cvReleaseImage(&originalImage);
 			} else {
 				//fprintf(stderr, "Can\'t load image from %s\n", imgFilename);
@@ -618,18 +619,18 @@ void loadFeatures() {
 			//find the right eye as part of the top right quadrant
 			rightEyeRect = detectHaarClassifier(faceTopRightImage, rightEyeCascade);
 			
-			if (noseRect.width > 0 && mouthRect.width >0) {
+			if (noseRect.width > 0 && mouthRect.width > 0) {
 				
-				int noseCenterX = noseRect.x + noseRect.width/2;
-				int noseCenterY = noseRect.y + noseRect.height/2;
-				int mouthCenterX = mouthRect.x + mouthRect.width/2;
-				int mouthCenterY = mouthRect.y + mouthRect.height/2;
+				int noseCenterX = noseRect.x + noseRect.width/2.0;
+				int noseCenterY = noseRect.y + noseRect.height/2.0;
+				int mouthCenterX = mouthRect.x + mouthRect.width/2.0;
+				int mouthCenterY = mouthRect.y + mouthRect.height/2.0;
 				
 				numNoseToMouth++;
 				noseToMouth += (noseCenterX - mouthCenterX)*(noseCenterX - mouthCenterX) + (noseCenterY - mouthCenterY)*(noseCenterY - mouthCenterY);
 			}
 
-			if (leftEyeRect.width > 0 && rightEyeRect.width >0) {
+			if (leftEyeRect.width > 0 && rightEyeRect.width > 0) {
 				int leftEyeCenterX = leftEyeRect.x + leftEyeRect.width/2.0;
 				int leftEyeCenterY = leftEyeRect.y + leftEyeRect.height/2.0;
 				int rightEyeCenterX = rightEyeRect.x + rightEyeRect.width/2.0;
