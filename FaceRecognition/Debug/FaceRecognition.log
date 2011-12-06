@@ -1,9 +1,9 @@
-﻿Build started 12/1/2011 11:18:09 AM.
+﻿Build started 12/5/2011 7:35:01 PM.
      1>Project "C:\Users\Keith\documents\visual studio 2010\Projects\FaceRecognition\FaceRecognition\FaceRecognition.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Debug\FaceRecognition.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Main.cpp MainOld.cpp
+         c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt MainOld.cpp
          MainOld.cpp
      1>c:\dev\opencv\build\include\opencv2\flann\logger.h(66): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files\microsoft visual studio 10.0\vc\include\stdio.h(234) : see declaration of 'fopen'
@@ -13,23 +13,21 @@
                  c:\program files\microsoft visual studio 10.0\vc\include\string.h(105) : see declaration of 'strcpy'
      1>c:\dev\opencv\build\include\opencv2\legacy\blobtrack.hpp(256): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files\microsoft visual studio 10.0\vc\include\string.h(110) : see declaration of 'strcat'
+     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(143): warning C4101: 'p' : unreferenced local variable
      1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(69): warning C4101: 'truth' : unreferenced local variable
      1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(69): warning C4101: 'nearest' : unreferenced local variable
-     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(213): warning C4101: 'i' : unreferenced local variable
-     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(318): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(341): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(214): warning C4101: 'i' : unreferenced local variable
+     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(319): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(342): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files\microsoft visual studio 10.0\vc\include\stdio.h(234) : see declaration of 'fopen'
-     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(358): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(359): warning C4996: 'fscanf': This function or variable may be unsafe. Consider using fscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files\microsoft visual studio 10.0\vc\include\stdio.h(253) : see declaration of 'fscanf'
-     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(447): warning C4018: '<' : signed/unsigned mismatch
      1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(448): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(478): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(510): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(514): warning C4018: '<' : signed/unsigned mismatch
-     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(532): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-         Generating Code...
-         Skipping... (no relevant changes detected)
-         Main.cpp
+     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(449): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(479): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(511): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(515): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\keith\documents\visual studio 2010\projects\facerecognition\facerecognition\mainold.cpp(536): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
        Link:
          c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Keith\documents\visual studio 2010\Projects\FaceRecognition\Debug\FaceRecognition.exe" /NOLOGO opencv_core231d.lib opencv_highgui231d.lib opencv_legacy231d.lib opencv_imgproc231d.lib opencv_objdetect231d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\FaceRecognition.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Keith\documents\visual studio 2010\Projects\FaceRecognition\Debug\FaceRecognition.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Keith\documents\visual studio 2010\Projects\FaceRecognition\Debug\FaceRecognition.lib" /MACHINE:X86 Debug\Main.obj
          Debug\MainOld.obj
@@ -45,4 +43,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:05.94
+Time Elapsed 00:00:02.98

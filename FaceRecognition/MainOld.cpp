@@ -130,6 +130,7 @@ int main(){
 				//printf("%d\n", trainPersonNumMat->data.i);
 				//nearest  = trainPersonNumMat->data.i[iNearest];
 				printf("Most likely person in camera: '%s' (confidence=%f.\n", faceToPerson.at(iNearest)->getName().c_str(), confidence);
+				//printf("test2\n\n");
 
 			}//endif nEigens
 
@@ -137,9 +138,9 @@ int main(){
 		if(frame)
 			cvShowImage("Camera Feed", frame);
 		if(processedFaceImage)
-			cvShowImage("Face", faceImgArr.at(iNearest)/*processedFaceImage*/);
+			cvShowImage("Face", processedFaceImage);
 
-
+		string *p;
 
 		//Cleanup after yourself
 		if (faceImage)
@@ -372,9 +373,9 @@ void loadFaceImgArray(char * filename)
 		}
 		//if not, add them
 		if (!(nameExists)){
-			Person person(sPersonName);
-			people.push_back(person);
-			personInset=0;
+			Person *newPerson = new Person(sPersonName);
+			people.push_back(*newPerson);
+			personInset=people.size()-1;
 		}
 
 		if(ROTATE_INPUT_IMAGES) {
@@ -455,10 +456,10 @@ void loadFaceImgArray(char * filename)
 	printf("Data loaded from '%s': (%d images of %d people).\n", filename, faceImgArr.size(), people.size());
 	printf("People: ");
 	if (people.size() > 0)
-		printf("<%s>", people.at(0).getName().c_str());
+		printf("%s(%d images)", people.at(0).getName().c_str(), people.at(0).getFaceImgs().size());
 	if (people.size() > 1)
 		for (unsigned int i=1; i<people.size(); i++) {
-			printf(", <%s>", people.at(i).getName().c_str());
+			printf(", %s(%d images)", people.at(i).getName().c_str(), people.at(i).getFaceImgs().size());
 		}
 	printf(".\n");
 }
@@ -529,9 +530,12 @@ int findNearestNeighbor(float * projectedTestFace, float *pConfidence)
 	// Return the confidence level based on the Euclidean distance,
 	// so that similar images should give a confidence between 0.5 to 1.0,
 	// and very different images should give a confidence between 0.0 to 0.5.
-	*pConfidence = 1.0f - sqrt( leastDistSq / (float)(faceImgArr.size() * eigenVectArr.size()) ) / 255.0f;
+	//*pConfidence = 1.0f - sqrt( leastDistSq / (float)(faceImgArr.size() * eigenVectArr.size()) ) / 255.0f;
+	
+	//Instead, just provide the leastDistSq, since the above doesn't actually work
+	*pConfidence = sqrt(leastDistSq);
 
-	// Return the found index.
-	return iNearest;
+	// Return the found index, plus one to remap onto faceArr, not eigens.
+	return iNearest+1;
 }
 #endif
