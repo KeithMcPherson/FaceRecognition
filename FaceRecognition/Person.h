@@ -16,6 +16,8 @@ public:
 	vector<IplImage*> getFaceImgs();
 	void addFace(IplImage * faceImg);
 
+	int eyeToEye;
+	int noseToMouth;
 private:
 	string name;
 	vector<IplImage *> faceImgs;

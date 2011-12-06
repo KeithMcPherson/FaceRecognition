@@ -6,6 +6,7 @@
 #include "opencv\highgui.h"
 #include "ImgMods.h"
 #include "Person.h"
+#include <math.h>
 
 #ifdef USE_OLD_MAIN
 
@@ -38,7 +39,8 @@ void loadHaarClassifiers();
 void learn(char *szFileTrain);
 void loadFaceImgArray(char * filename);
 void doPCA();
-int findNearestNeighbor(float * projectedTestFace, float *pConfidence);
+int findNearestNeighbor(float * projectedTestFace, float *pConfidence, CvRect noseRect, CvRect mouthRect, CvRect leftEyeRect, CvRect rightEyeRect);
+void loadFeatures();
 
 int main(){
 	CvMat * trainPersonNumMat = 0;  // the person numbers during training
@@ -107,7 +109,7 @@ int main(){
 				cvRectangle(frame, cvPoint(rightEyeRect.x + faceRect.x + faceRect.width/2, rightEyeRect.y + faceRect.y), cvPoint(rightEyeRect.x + rightEyeRect.width-1 + faceRect.x + faceRect.width/2, rightEyeRect.y + rightEyeRect.height-1 + faceRect.y), CV_RGB(255,255,0), 1, 8, 0);
 				
 		
-		}
+		} 
 
 		//equalize the face
 		if(faceImage)
@@ -126,7 +128,7 @@ int main(){
 					projectedTestFace);
 				
 				// Check which person it is most likely to be.
-				iNearest = findNearestNeighbor(projectedTestFace, &confidence)-1;
+				iNearest = findNearestNeighbor(projectedTestFace, &confidence, noseRect, mouthRect, leftEyeRect, rightEyeRect);
 				//printf("%d\n", trainPersonNumMat->data.i);
 				//nearest  = trainPersonNumMat->data.i[iNearest];
 				printf("Most likely person in camera: '%s' (confidence=%f.\n", faceToPerson.at(iNearest)->getName().c_str(), confidence);
@@ -309,9 +311,10 @@ void learn(char *szFileTrain)
 		        "Input file contains only %d\n", faceImgArr.size());
 		return;
 	}
-
+	
 	// do PCA on the training faces
 	doPCA();
+	loadFeatures();
 
 	// project the training images onto the PCA subspace
 	projectedTrainFaceMat = cvCreateMat( faceImgArr.size(), eigenVectArr.size(), CV_32FC1 );
@@ -389,8 +392,8 @@ void loadFaceImgArray(char * filename)
 				if(faceRect.width>0) { //make sure you found a face
 					IplImage* tempImage = &IplImage(*originalImage); //crop just the face as a whole and equalize it
 					tempImage = cropImage(tempImage, faceRect);
-					people.at(personInset).addFace(equalizeImage(tempImage));
-					cvReleaseImage(&tempImage);
+					people.at(personInset).addFace(tempImage);
+					//cvReleaseImage(&tempImage);
 				} else {
 					//fprintf(stderr, "Can\'t load image from %s\n", imgFilename);
 					//nFiles--;
@@ -411,8 +414,8 @@ void loadFaceImgArray(char * filename)
 				if(faceRect.width>0) { //make sure you found a face
 					IplImage* tempImage = &IplImage(*originalImage); //crop just the face as a whole and equalize it
 					tempImage = cropImage(tempImage, faceRect);
-					people.at(personInset).addFace(equalizeImage(tempImage));
-					cvReleaseImage(&tempImage);
+					people.at(personInset).addFace(tempImage);
+					//cvReleaseImage(&tempImage);
 				} else {
 					//fprintf(stderr, "Can\'t load image from %s\n", imgFilename);
 					//nFiles--;
@@ -422,17 +425,18 @@ void loadFaceImgArray(char * filename)
 				faceRect = cvRect(-1,-1,-1,-1);
 			}
 			
-			cvReleaseImage(&originalImage);
+			//cvReleaseImage(&originalImage);
 		} else {
 			if(originalImage)
 				faceRect = detectHaarClassifier(originalImage, faceCascade);
 			else
 				faceRect = cvRect(-1,-1,-1,-1);
 			if(faceRect.width>0) { //make sure you found a face
-				//IplImage *tempImage = equalizeImage(originalImage); //crop just the face as a whole and equalize it
-				people.at(personInset).addFace(equalizeImage(cropImage(originalImage, faceRect)));
+				//people.at(personInset).addFace(equalizeImage(cropImage(originalImage, faceRect)));
+				people.at(personInset).addFace(cropImage(originalImage, faceRect));
 				cvFlip(originalImage, NULL, 1);
-				people.at(personInset).addFace(equalizeImage(cropImage(originalImage, faceRect)));
+				//people.at(personInset).addFace(equalizeImage(cropImage(originalImage, faceRect)));
+				people.at(personInset).addFace(cropImage(originalImage, faceRect));
 				//cvReleaseImage(&originalImage);
 			} else {
 				//fprintf(stderr, "Can\'t load image from %s\n", imgFilename);
@@ -448,7 +452,7 @@ void loadFaceImgArray(char * filename)
 	for (int iPeople=0; iPeople<people.size(); iPeople++) {
 		for (int iFace=0; iFace<people.at(iPeople).getFaceImgs().size(); iFace++) {
 			faceToPerson.push_back(&people.at(iPeople));
-			faceImgArr.push_back(people.at(iPeople).getFaceImgs().at(iFace));
+			faceImgArr.push_back(equalizeImage(people.at(iPeople).getFaceImgs().at(iFace)));
 		}
 	}
 
@@ -502,8 +506,50 @@ void doPCA()
 }
 
 // Find the most likely person based on a detection. Returns the index, and stores the confidence value into pConfidence.
-int findNearestNeighbor(float * projectedTestFace, float *pConfidence)
+int findNearestNeighbor(float * projectedTestFace, float *pConfidence, CvRect noseRect, CvRect mouthRect, CvRect leftEyeRect, CvRect rightEyeRect)
 {
+	int noseToMouth = 0;
+	int eyeToEye = 0;
+	if (noseRect.width > 0 && mouthRect.width >0) {
+		
+		int noseCenterX = noseRect.x + noseRect.width/2;
+		int noseCenterY = noseRect.y + noseRect.height/2;
+		int mouthCenterX = mouthRect.x + mouthRect.width/2;
+		int mouthCenterY = mouthRect.y + mouthRect.height/2;
+		
+		noseToMouth = (noseCenterX - mouthCenterX)*(noseCenterX - mouthCenterX) + (noseCenterY - mouthCenterY)*(noseCenterY - mouthCenterY);
+	}
+
+	if (leftEyeRect.width > 0 && rightEyeRect.width >0) {
+		int leftEyeCenterX = leftEyeRect.x + leftEyeRect.width/2.0;
+		int leftEyeCenterY = leftEyeRect.y + leftEyeRect.height/2.0;
+		int rightEyeCenterX = rightEyeRect.x + rightEyeRect.width/2.0;
+		int rightEyeCenterY = rightEyeRect.y + rightEyeRect.height/2.0;
+		
+		eyeToEye = (leftEyeCenterX - rightEyeCenterX)*(leftEyeCenterX - rightEyeCenterX) + (leftEyeCenterY - rightEyeCenterY)*(leftEyeCenterY - rightEyeCenterY) ;
+				
+	}
+	int maxEyeToEyeDiff = 99999;
+	int maxNoseToMouthDiff = 99999;
+	int eyeToEyeNearest = 0;
+	int noseToMouthNearest = 0;
+	for (int i=0; i<people.size(); i++) {
+		int eyeToEyeDiff = abs(eyeToEye - people.at(i).eyeToEye);
+		if (eyeToEyeDiff < maxEyeToEyeDiff) {
+			maxEyeToEyeDiff = eyeToEyeDiff;
+			eyeToEyeNearest = i;
+		}
+
+		int noseToMouthDiff = abs(noseToMouth - people.at(i).noseToMouth);
+		if (noseToMouthDiff < maxEyeToEyeDiff) {
+		maxEyeToEyeDiff = noseToMouthDiff;
+		noseToMouthNearest = i;
+		}
+	}
+
+	printf("Nearest eye to eye is: %s\n", people.at(eyeToEyeNearest).getName().c_str());
+	printf("Nearest nose to mouth is: %s\n", people.at(noseToMouthNearest).getName().c_str());
+
 	//double leastDistSq = 1e12;
 	double leastDistSq = DBL_MAX;
 	int i, iTrain, iNearest = 0;
@@ -535,7 +581,87 @@ int findNearestNeighbor(float * projectedTestFace, float *pConfidence)
 	//Instead, just provide the leastDistSq, since the above doesn't actually work
 	*pConfidence = sqrt(leastDistSq);
 
-	// Return the found index, plus one to remap onto faceArr, not eigens.
-	return iNearest+1;
+	// Return the found index.
+	return iNearest;
 }
+
+void loadFeatures() {
+	
+	printf("Loading Features...\n");
+
+	for (int i=0; i<people.size(); i++) {
+		int eyeToEye = 0;
+		int numEyeToEye = 0;
+		float noseToMouth = 0;
+		int numNoseToMouth = 0;
+		for (int j=0; j<people.at(i).getFaceImgs().size(); j++) {
+
+			IplImage* faceImage = people.at(i).getFaceImgs().at(j);
+
+			CvRect noseRect, mouthRect, leftEyeRect, rightEyeRect;
+
+			IplImage *faceTopLeftImage = 0; //top left face quadrant
+			IplImage *faceTopRightImage = 0; //top right face quadrant
+			IplImage *faceBottomImage = 0; //bottom half of the face
+
+			//break the face into multiple parts 
+			faceTopLeftImage = cropImage(faceImage, cvRect(0, 0, faceImage->width/2, faceImage->height/2)); //top left quadrant
+			faceTopRightImage = cropImage(faceImage, cvRect(faceImage->width/2, 0, faceImage->width/2, faceImage->height/2)); // top right quadrant
+			faceBottomImage = cropImage(faceImage, cvRect(0, faceImage->height/2, faceImage->width, faceImage->height/2)); //bottom half
+			
+			//find the nose as part of the whole face
+			noseRect = detectHaarClassifier(faceImage, noseCascade);
+			//find the mouth as part of the bottom half
+			mouthRect = detectHaarClassifier(faceBottomImage, mouthCascade);
+			//find the left eye as part of the top left quadrant
+			leftEyeRect = detectHaarClassifier(faceTopLeftImage, leftEyeCascade);
+			//find the right eye as part of the top right quadrant
+			rightEyeRect = detectHaarClassifier(faceTopRightImage, rightEyeCascade);
+			
+			if (noseRect.width > 0 && mouthRect.width >0) {
+				
+				int noseCenterX = noseRect.x + noseRect.width/2;
+				int noseCenterY = noseRect.y + noseRect.height/2;
+				int mouthCenterX = mouthRect.x + mouthRect.width/2;
+				int mouthCenterY = mouthRect.y + mouthRect.height/2;
+				
+				numNoseToMouth++;
+				noseToMouth += (noseCenterX - mouthCenterX)*(noseCenterX - mouthCenterX) + (noseCenterY - mouthCenterY)*(noseCenterY - mouthCenterY);
+			}
+
+			if (leftEyeRect.width > 0 && rightEyeRect.width >0) {
+				int leftEyeCenterX = leftEyeRect.x + leftEyeRect.width/2.0;
+				int leftEyeCenterY = leftEyeRect.y + leftEyeRect.height/2.0;
+				int rightEyeCenterX = rightEyeRect.x + rightEyeRect.width/2.0;
+				int rightEyeCenterY = rightEyeRect.y + rightEyeRect.height/2.0;
+				
+				numEyeToEye++;
+				eyeToEye += (leftEyeCenterX - rightEyeCenterX)*(leftEyeCenterX - rightEyeCenterX) + (leftEyeCenterY - rightEyeCenterY)*(leftEyeCenterY - rightEyeCenterY) ;
+				
+			}
+
+			//if (faceImage)
+				//cvReleaseImage(&faceImage);
+			if (faceTopLeftImage)
+				cvReleaseImage(&faceTopLeftImage);
+			if (faceTopRightImage)
+				cvReleaseImage(&faceTopRightImage);
+			if (faceBottomImage)
+				cvReleaseImage(&faceBottomImage);
+
+		}
+		int eyeToEyeAvg = 0;
+		int noseToMouthAvg = 0;
+		if (numEyeToEye != 0)
+			eyeToEyeAvg = eyeToEye / numEyeToEye;
+		if (numNoseToMouth != 0)
+			int noseToMouthAvg = noseToMouth / numNoseToMouth;
+		people.at(i).eyeToEye = eyeToEyeAvg;
+		people.at(i).noseToMouth = noseToMouthAvg;
+		printf("%s eyeToEyeAvg: %d\n", people.at(i).getName().c_str(), eyeToEyeAvg);
+	}
+}
+
+
+
 #endif
